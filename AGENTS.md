@@ -15,6 +15,7 @@ Standalone Rust TUI for browsing and exporting macOS Messages data.
 - `LICENSE`: MIT license for the project.
 - `PROJECT-STATUS.md`: Current status and manual acceptance checklist.
 - `.github/workflows/ci.yml`: macOS formatting, test, and Clippy checks.
+- `assets/screenshot.png`: Anonymized TUI screenshot used in the README.
 - `src/app.rs`: Application state, navigation, paging, and export workflow.
 - `src/db.rs`: Read-only Messages/Contacts access and message decoding.
 - `src/export.rs`: Markdown generation and safe filenames.

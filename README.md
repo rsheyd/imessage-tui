@@ -6,6 +6,20 @@ A local, read-only terminal browser and Markdown exporter for the macOS Messages
   <img src="assets/conversation-list-screenshot.png" alt="imessage-tui showing the recent conversations screen" width="720">
 </p>
 
+**Table of Contents**
+- [imessage-tui](#imessage-tui)
+  - [V1 features](#v1-features)
+  - [Requirements](#requirements)
+  - [Install from source](#install-from-source)
+  - [Build without installing](#build-without-installing)
+  - [Keys](#keys)
+    - [Conversations](#conversations)
+    - [Messages](#messages)
+  - [More screenshots](#more-screenshots)
+  - [Privacy](#privacy)
+  - [V1 limitations](#v1-limitations)
+  - [License](#license)
+
 ## V1 features
 
 - Lists recent conversations newest first.

@@ -1,5 +1,10 @@
 # Contributing
 
+**Table of Contents**
+- [Contributing](#contributing)
+  - [Bumping the version and reinstalling](#bumping-the-version-and-reinstalling)
+  - [Publishing a GitHub release](#publishing-a-github-release)
+
 ## Bumping the version and reinstalling
 
 For a user-facing change, such as adding conversation search, increment the

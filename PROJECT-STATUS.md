@@ -26,6 +26,5 @@ Freshly rerun on July 16, 2026:
 ## Deferred to V2
 
 - Conversation search.
-- Mouse navigation.
 - Attachment copying.
 - Additional export formats.

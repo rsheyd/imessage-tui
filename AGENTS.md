@@ -17,6 +17,7 @@ Standalone Rust TUI for browsing and exporting macOS Messages data.
 - `.github/workflows/ci.yml`: macOS formatting, test, and Clippy checks.
 - `assets/screenshot.png`: Anonymized TUI screenshot used in the README.
 - `assets/messages-screenshot.png`: Anonymized conversation screenshot used in the README.
+- `assets/export-range-screenshot.png`: Anonymized export-menu screenshot used in the README.
 - `src/app.rs`: Application state, navigation, paging, and export workflow.
 - `src/db.rs`: Read-only Messages/Contacts access and message decoding.
 - `src/export.rs`: Markdown generation and safe filenames.

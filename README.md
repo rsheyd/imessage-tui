@@ -2,13 +2,11 @@
 
 A local, read-only terminal browser and Markdown exporter for the macOS Messages database.
 
-## Screenshots
+<p align="center">
+  <img src="assets/screenshot.png" alt="imessage-tui showing the recent conversations screen" width="720">
+</p>
 
-![imessage-tui showing the recent conversations screen](assets/screenshot.png)
-
-![imessage-tui showing messages in a conversation](assets/messages-screenshot.png)
-
-_Screenshots use fictional conversation labels and messages._
+<p align="center"><em>All screenshots use fictional conversation labels and messages.</em></p>
 
 ## V1 features
 
@@ -63,6 +61,13 @@ cargo build --release
 - `Home` / `End`: oldest/latest loaded message
 - `e`: export
 - `q`, `Esc`, or `Backspace`: return to conversations
+
+## More screenshots
+
+<p align="center">
+  <img src="assets/messages-screenshot.png" alt="imessage-tui showing messages in a conversation" width="49%">
+  <img src="assets/export-range-screenshot.png" alt="imessage-tui showing the export range menu" width="49%">
+</p>
 
 ## Privacy
 

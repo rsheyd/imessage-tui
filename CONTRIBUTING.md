@@ -26,3 +26,22 @@ cargo install --list | rg '^imessage-tui v0.1.1:'
 
 If the binary later gains a `--version` option, it can also be checked with
 `imessage-tui --version`.
+
+## Publishing a GitHub release
+
+After the version bump and related changes are committed and pushed:
+
+1. Open the repository's **Releases** page and choose **Draft a new release**.
+2. Create a tag matching the package version, such as `v0.1.1`, targeting
+   `main`.
+3. Use a title such as `imessage-tui 0.1.1` and summarize the release using
+   `CHANGELOG.md`.
+4. Leave the release label set to **None** for a production-ready release. Use
+   **Pre-release** only for unfinished test versions such as betas.
+5. Publish the release. GitHub automatically attaches source-code archives.
+
+Users with Rust can install a tagged release with:
+
+```sh
+cargo install --git https://github.com/rsheyd/imessage-tui.git --tag v0.1.1
+```

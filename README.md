@@ -66,7 +66,6 @@ The Messages and Contacts databases are opened read-only. Exports are ordinary u
 
 ## V1 limitations
 
-- Keyboard navigation only; no mouse support.
 - Attachment files are not copied. Markdown contains placeholders.
 
 ## License

@@ -2,9 +2,13 @@
 
 A local, read-only terminal browser and Markdown exporter for the macOS Messages database.
 
+## Screenshots
+
 ![imessage-tui showing the recent conversations screen](assets/screenshot.png)
 
-_Screenshot uses fictional conversation labels._
+![imessage-tui showing messages in a conversation](assets/messages-screenshot.png)
+
+_Screenshots use fictional conversation labels and messages._
 
 ## V1 features
 

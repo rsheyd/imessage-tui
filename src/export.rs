@@ -29,17 +29,21 @@ pub fn write_markdown(
         output.push_str("_No messages in this range._\n");
     } else {
         for message in messages {
-            output.push_str(&format!(
-                "## {} — {}\n\n",
-                message.date.format("%Y-%m-%d %H:%M:%S"),
-                message.sender
-            ));
+            output.push_str(&message_header(message));
             output.push_str(&message.display_body());
             output.push_str("\n\n");
         }
     }
 
     fs::write(path, output).with_context(|| format!("Unable to write export to {}", path.display()))
+}
+
+fn message_header(message: &ChatMessage) -> String {
+    format!(
+        "**{} — {}**\n\n",
+        message.date.format("%Y-%m-%d %H:%M:%S"),
+        message.sender
+    )
 }
 
 pub fn safe_filename(name: &str) -> String {
@@ -68,10 +72,33 @@ pub fn safe_filename(name: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::safe_filename;
+    use chrono::{Local, TimeZone};
+
+    use crate::model::ChatMessage;
+
+    use super::{message_header, safe_filename};
 
     #[test]
     fn sanitizes_filename() {
         assert_eq!(safe_filename("Sarah / Family Chat"), "Sarah-_-Family-Chat");
+    }
+
+    #[test]
+    fn bolds_message_header_without_creating_a_heading() {
+        let message = ChatMessage {
+            date: Local
+                .with_ymd_and_hms(2026, 7, 16, 12, 15, 27)
+                .single()
+                .unwrap(),
+            sender: "Demo Contact".to_string(),
+            text: None,
+            reaction: None,
+            attachment_count: 0,
+        };
+
+        assert_eq!(
+            message_header(&message),
+            "**2026-07-16 12:15:27 — Demo Contact**\n\n"
+        );
     }
 }

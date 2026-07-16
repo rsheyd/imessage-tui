@@ -17,6 +17,7 @@ Freshly rerun on July 16, 2026:
 
 - [x] Conversations appear newest first.
 - [x] Contact names resolve where available.
+- [ ] Conversation search filters by contact name and phone number; `Esc` restores the full list.
 - [x] Enter opens the selected conversation at the newest message.
 - [x] Arrow keys and Page Up/Down navigate messages and load older pages.
 - [x] Each export range creates readable Markdown in the selected path.
@@ -25,6 +26,5 @@ Freshly rerun on July 16, 2026:
 
 ## Deferred to V2
 
-- Conversation search.
 - Attachment copying.
 - Additional export formats.

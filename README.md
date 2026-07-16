@@ -10,6 +10,7 @@ A local, read-only terminal browser and Markdown exporter for the macOS Messages
 
 - Lists recent conversations newest first.
 - Resolves contact names from the local macOS Contacts database when possible.
+- Searches conversations by contact name or phone number.
 - Opens a conversation at its latest 20 messages and pages older messages on demand.
 - Exports one conversation to Markdown for the last hour, last 24 hours, a custom number of hours or days, or all time.
 - Defaults export paths to the directory where `imessage-tui` was started.
@@ -50,6 +51,7 @@ cargo build --release
 - `↑` / `↓` or `j` / `k`: move
 - `Page Up` / `Page Down`: move faster
 - `Enter`: open conversation
+- `/`: search by contact name or phone number; `Esc` clears the search
 - `q`: quit
 
 ### Messages

@@ -12,6 +12,8 @@ Standalone Rust TUI for browsing and exporting macOS Messages data.
 ## File map
 
 - `README.md`: Stable overview, usage, keys, privacy, and limitations.
+- `CHANGELOG.md`: User-facing changes organized by release version.
+- `CONTRIBUTING.md`: Development guidance, including version bumps and local reinstalls.
 - `LICENSE`: MIT license for the project.
 - `PROJECT-STATUS.md`: Current status and manual acceptance checklist.
 - `.github/workflows/ci.yml`: macOS formatting, test, and Clippy checks.

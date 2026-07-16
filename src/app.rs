@@ -36,7 +36,9 @@ pub enum InputUnit {
 pub struct App {
     pub db: Database,
     pub conversations: Vec<Conversation>,
+    pub visible_conversation_indices: Vec<usize>,
     pub conversation_state: ListState,
+    pub conversation_search: Option<String>,
     pub messages: Vec<ChatMessage>,
     pub message_state: ListState,
     pub screen: Screen,
@@ -50,6 +52,7 @@ impl App {
     pub fn new() -> Result<Self> {
         let db = Database::open_default()?;
         let conversations = db.conversations()?;
+        let visible_conversation_indices = (0..conversations.len()).collect();
         let mut conversation_state = ListState::default();
         if !conversations.is_empty() {
             conversation_state.select(Some(0));
@@ -57,21 +60,30 @@ impl App {
         Ok(Self {
             db,
             conversations,
+            visible_conversation_indices,
             conversation_state,
+            conversation_search: None,
             messages: Vec::new(),
             message_state: ListState::default(),
             screen: Screen::Conversations,
             modal: Modal::None,
             should_quit: false,
             loaded_all: false,
-            status: "Enter: open  •  q: quit".to_string(),
+            status: "Enter: open  •  /: search  •  q: quit".to_string(),
         })
     }
 
     pub fn current_conversation(&self) -> Option<&Conversation> {
         self.conversation_state
             .selected()
-            .and_then(|index| self.conversations.get(index))
+            .and_then(|index| self.visible_conversation_indices.get(index))
+            .and_then(|index| self.conversations.get(*index))
+    }
+
+    pub fn visible_conversations(&self) -> impl Iterator<Item = &Conversation> {
+        self.visible_conversation_indices
+            .iter()
+            .filter_map(|index| self.conversations.get(*index))
     }
 
     pub fn handle_key(&mut self, key: KeyEvent) -> Result<()> {
@@ -89,20 +101,35 @@ impl App {
 
     fn handle_screen_key(&mut self, key: KeyEvent) -> Result<()> {
         match self.screen {
+            Screen::Conversations if self.conversation_search.is_some() => {
+                self.handle_search_key(key)?
+            }
             Screen::Conversations => match key.code {
                 KeyCode::Char('q') => self.should_quit = true,
-                KeyCode::Up | KeyCode::Char('k') => {
-                    move_selection(&mut self.conversation_state, self.conversations.len(), -1)
+                KeyCode::Char('/') => {
+                    self.conversation_search = Some(String::new());
+                    self.update_conversation_filter();
                 }
-                KeyCode::Down | KeyCode::Char('j') => {
-                    move_selection(&mut self.conversation_state, self.conversations.len(), 1)
-                }
-                KeyCode::PageUp => {
-                    move_selection(&mut self.conversation_state, self.conversations.len(), -10)
-                }
-                KeyCode::PageDown => {
-                    move_selection(&mut self.conversation_state, self.conversations.len(), 10)
-                }
+                KeyCode::Up | KeyCode::Char('k') => move_selection(
+                    &mut self.conversation_state,
+                    self.visible_conversation_indices.len(),
+                    -1,
+                ),
+                KeyCode::Down | KeyCode::Char('j') => move_selection(
+                    &mut self.conversation_state,
+                    self.visible_conversation_indices.len(),
+                    1,
+                ),
+                KeyCode::PageUp => move_selection(
+                    &mut self.conversation_state,
+                    self.visible_conversation_indices.len(),
+                    -10,
+                ),
+                KeyCode::PageDown => move_selection(
+                    &mut self.conversation_state,
+                    self.visible_conversation_indices.len(),
+                    10,
+                ),
                 KeyCode::Enter => self.open_conversation()?,
                 _ => {}
             },
@@ -129,6 +156,76 @@ impl App {
         Ok(())
     }
 
+    fn handle_search_key(&mut self, key: KeyEvent) -> Result<()> {
+        match key.code {
+            KeyCode::Esc => {
+                self.conversation_search = None;
+                self.update_conversation_filter();
+            }
+            KeyCode::Enter => self.open_conversation()?,
+            KeyCode::Up => move_selection(
+                &mut self.conversation_state,
+                self.visible_conversation_indices.len(),
+                -1,
+            ),
+            KeyCode::Down => move_selection(
+                &mut self.conversation_state,
+                self.visible_conversation_indices.len(),
+                1,
+            ),
+            KeyCode::PageUp => move_selection(
+                &mut self.conversation_state,
+                self.visible_conversation_indices.len(),
+                -10,
+            ),
+            KeyCode::PageDown => move_selection(
+                &mut self.conversation_state,
+                self.visible_conversation_indices.len(),
+                10,
+            ),
+            KeyCode::Backspace => {
+                if let Some(query) = &mut self.conversation_search {
+                    query.pop();
+                }
+                self.update_conversation_filter();
+            }
+            KeyCode::Char(ch) => {
+                if let Some(query) = &mut self.conversation_search {
+                    query.push(ch);
+                }
+                self.update_conversation_filter();
+            }
+            _ => {}
+        }
+        Ok(())
+    }
+
+    fn update_conversation_filter(&mut self) {
+        let query = self.conversation_search.as_deref().unwrap_or_default();
+        self.visible_conversation_indices = self
+            .conversations
+            .iter()
+            .enumerate()
+            .filter_map(|(index, conversation)| {
+                conversation_matches(conversation, query).then_some(index)
+            })
+            .collect();
+        self.conversation_state
+            .select((!self.visible_conversation_indices.is_empty()).then_some(0));
+        self.status = match &self.conversation_search {
+            Some(query) => format!(
+                "Search: {query}_  •  {} match{}  •  Enter: open  •  Esc: clear",
+                self.visible_conversation_indices.len(),
+                if self.visible_conversation_indices.len() == 1 {
+                    ""
+                } else {
+                    "es"
+                }
+            ),
+            None => "Enter: open  •  /: search  •  q: quit".to_string(),
+        };
+    }
+
     fn open_conversation(&mut self) -> Result<()> {
         let Some(conversation) = self.current_conversation() else {
             return Ok(());
@@ -146,7 +243,15 @@ impl App {
         self.screen = Screen::Conversations;
         self.messages.clear();
         self.message_state.select(None);
-        self.status = "Enter: open  •  q: quit".to_string();
+        self.status = if let Some(query) = &self.conversation_search {
+            let count = self.visible_conversation_indices.len();
+            format!(
+                "Search: {query}_  •  {count} match{}  •  Enter: open  •  Esc: clear",
+                if count == 1 { "" } else { "es" }
+            )
+        } else {
+            "Enter: open  •  /: search  •  q: quit".to_string()
+        };
     }
 
     fn older(&mut self, amount: usize) -> Result<()> {
@@ -324,6 +429,32 @@ impl App {
     }
 }
 
+fn conversation_matches(conversation: &Conversation, query: &str) -> bool {
+    let query = query.trim().to_lowercase();
+    if query.is_empty() {
+        return true;
+    }
+
+    let text_match = std::iter::once(conversation.name.as_str())
+        .chain(conversation.participants.iter().map(String::as_str))
+        .any(|value| value.to_lowercase().contains(&query));
+    if text_match {
+        return true;
+    }
+
+    let query_digits: String = query.chars().filter(char::is_ascii_digit).collect();
+    !query_digits.is_empty()
+        && std::iter::once(conversation.name.as_str())
+            .chain(conversation.participants.iter().map(String::as_str))
+            .map(|value| {
+                value
+                    .chars()
+                    .filter(char::is_ascii_digit)
+                    .collect::<String>()
+            })
+            .any(|digits| digits.contains(&query_digits))
+}
+
 fn move_selection(state: &mut ListState, len: usize, amount: isize) {
     if len == 0 {
         state.select(None);
@@ -332,4 +463,41 @@ fn move_selection(state: &mut ListState, len: usize, amount: isize) {
     let current = state.selected().unwrap_or(0);
     let next = current.saturating_add_signed(amount).min(len - 1);
     state.select(Some(next));
+}
+
+#[cfg(test)]
+mod tests {
+    use chrono::Local;
+
+    use super::*;
+
+    fn conversation(name: &str, participants: &[&str]) -> Conversation {
+        Conversation {
+            id: 1,
+            name: name.to_string(),
+            participants: participants.iter().map(|value| value.to_string()).collect(),
+            last_date: Local::now(),
+        }
+    }
+
+    #[test]
+    fn search_matches_contact_names_case_insensitively() {
+        let conversation = conversation("Alice Smith", &["+18455551212"]);
+        assert!(conversation_matches(&conversation, "alice"));
+        assert!(conversation_matches(&conversation, "SMITH"));
+        assert!(!conversation_matches(&conversation, "Bob"));
+    }
+
+    #[test]
+    fn search_matches_phone_numbers_ignoring_formatting() {
+        let conversation = conversation("Alice Smith", &["+1 (845) 555-1212"]);
+        assert!(conversation_matches(&conversation, "845-555"));
+        assert!(conversation_matches(&conversation, "5551212"));
+        assert!(!conversation_matches(&conversation, "5559999"));
+    }
+
+    #[test]
+    fn empty_search_matches_every_conversation() {
+        assert!(conversation_matches(&conversation("Alice", &[]), ""));
+    }
 }

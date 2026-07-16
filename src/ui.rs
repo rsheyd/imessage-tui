@@ -34,8 +34,7 @@ pub fn draw(frame: &mut Frame, app: &mut App) {
 
 fn draw_conversations(frame: &mut Frame, app: &mut App, area: Rect) {
     let items: Vec<ListItem> = app
-        .conversations
-        .iter()
+        .visible_conversations()
         .map(|conversation| {
             ListItem::new(Line::from(vec![
                 Span::styled(
@@ -53,12 +52,13 @@ fn draw_conversations(frame: &mut Frame, app: &mut App, area: Rect) {
             ]))
         })
         .collect();
+    let title = match &app.conversation_search {
+        Some(query) if !query.is_empty() => format!(" Conversations matching \"{query}\" "),
+        Some(_) => " Search conversations ".to_string(),
+        None => " Recent conversations ".to_string(),
+    };
     let list = List::new(items)
-        .block(
-            Block::default()
-                .title(" Recent conversations ")
-                .borders(Borders::ALL),
-        )
+        .block(Block::default().title(title).borders(Borders::ALL))
         .highlight_symbol("› ")
         .highlight_style(Style::default().bg(Color::Blue).fg(Color::White));
     frame.render_stateful_widget(list, area, &mut app.conversation_state);

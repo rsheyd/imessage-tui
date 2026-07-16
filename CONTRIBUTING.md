@@ -1,0 +1,28 @@
+# Contributing
+
+## Bumping the version and reinstalling
+
+For a user-facing change, such as adding conversation search, increment the
+package version in `Cargo.toml` and describe the change in `CHANGELOG.md`. For
+example:
+
+```toml
+version = "0.1.1"
+```
+
+Then update `Cargo.lock`, validate the project, and reinstall the binary:
+
+```sh
+cargo check
+cargo install --path . --force
+```
+
+`cargo check` updates the package version recorded in `Cargo.lock`. Confirm the
+installed version with:
+
+```sh
+cargo install --list | rg '^imessage-tui v0.1.1:'
+```
+
+If the binary later gains a `--version` option, it can also be checked with
+`imessage-tui --version`.

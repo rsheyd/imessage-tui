@@ -5,7 +5,7 @@ use chrono::Local;
 use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::widgets::ListState;
 
-use crate::{
+use imessage_tui::{
     db::Database,
     export::{safe_filename, write_markdown},
     model::{ChatMessage, Conversation, ExportRange},
@@ -206,9 +206,7 @@ impl App {
             .conversations
             .iter()
             .enumerate()
-            .filter_map(|(index, conversation)| {
-                conversation_matches(conversation, query).then_some(index)
-            })
+            .filter_map(|(index, conversation)| conversation.matches_search(query).then_some(index))
             .collect();
         self.conversation_state
             .select((!self.visible_conversation_indices.is_empty()).then_some(0));
@@ -429,32 +427,6 @@ impl App {
     }
 }
 
-fn conversation_matches(conversation: &Conversation, query: &str) -> bool {
-    let query = query.trim().to_lowercase();
-    if query.is_empty() {
-        return true;
-    }
-
-    let text_match = std::iter::once(conversation.name.as_str())
-        .chain(conversation.participants.iter().map(String::as_str))
-        .any(|value| value.to_lowercase().contains(&query));
-    if text_match {
-        return true;
-    }
-
-    let query_digits: String = query.chars().filter(char::is_ascii_digit).collect();
-    !query_digits.is_empty()
-        && std::iter::once(conversation.name.as_str())
-            .chain(conversation.participants.iter().map(String::as_str))
-            .map(|value| {
-                value
-                    .chars()
-                    .filter(char::is_ascii_digit)
-                    .collect::<String>()
-            })
-            .any(|digits| digits.contains(&query_digits))
-}
-
 fn move_selection(state: &mut ListState, len: usize, amount: isize) {
     if len == 0 {
         state.select(None);
@@ -467,37 +439,12 @@ fn move_selection(state: &mut ListState, len: usize, amount: isize) {
 
 #[cfg(test)]
 mod tests {
-    use chrono::Local;
-
     use super::*;
 
-    fn conversation(name: &str, participants: &[&str]) -> Conversation {
-        Conversation {
-            id: 1,
-            name: name.to_string(),
-            participants: participants.iter().map(|value| value.to_string()).collect(),
-            last_date: Local::now(),
-        }
-    }
-
     #[test]
-    fn search_matches_contact_names_case_insensitively() {
-        let conversation = conversation("Alice Smith", &["+18455551212"]);
-        assert!(conversation_matches(&conversation, "alice"));
-        assert!(conversation_matches(&conversation, "SMITH"));
-        assert!(!conversation_matches(&conversation, "Bob"));
-    }
-
-    #[test]
-    fn search_matches_phone_numbers_ignoring_formatting() {
-        let conversation = conversation("Alice Smith", &["+1 (845) 555-1212"]);
-        assert!(conversation_matches(&conversation, "845-555"));
-        assert!(conversation_matches(&conversation, "5551212"));
-        assert!(!conversation_matches(&conversation, "5559999"));
-    }
-
-    #[test]
-    fn empty_search_matches_every_conversation() {
-        assert!(conversation_matches(&conversation("Alice", &[]), ""));
+    fn selection_is_cleared_for_an_empty_list() {
+        let mut state = ListState::default().with_selected(Some(2));
+        move_selection(&mut state, 0, 1);
+        assert_eq!(state.selected(), None);
     }
 }

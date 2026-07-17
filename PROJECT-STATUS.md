@@ -28,3 +28,18 @@ Freshly rerun on July 16, 2026:
 
 - Attachment copying.
 - Additional export formats.
+
+## GUI prototype
+
+The egui prototype shares the read-only database, search, message decoding, and
+Markdown export code with the TUI. It builds as an unsigned Apple Silicon app
+at `dist/iMessage Browser.app`.
+
+### Manual acceptance checklist
+
+- [x] The app launches from Finder or with `open "dist/iMessage Browser.app"`.
+- [x] Full Disk Access guidance appears when access is unavailable.
+- [ ] Conversations appear newest first and search matches names and formatted phone numbers.
+- [ ] Selecting a conversation shows its latest messages and **Load older messages** prepends another page.
+- [ ] Each export range writes readable Markdown to the chosen path.
+- [ ] The existing TUI still launches and completes its accepted workflows.

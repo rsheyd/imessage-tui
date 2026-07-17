@@ -50,3 +50,15 @@ Users with Rust can install a tagged release with:
 ```sh
 cargo install --git https://github.com/rsheyd/imessage-tui.git --tag v0.1.1
 ```
+
+## Building the unsigned macOS app
+
+On Apple Silicon macOS, build the local GUI prototype with:
+
+```sh
+./scripts/build-app.sh
+open "dist/iMessage Browser.app"
+```
+
+Keep the version strings in `macos/Info.plist` aligned with `Cargo.toml` when
+bumping the package version.

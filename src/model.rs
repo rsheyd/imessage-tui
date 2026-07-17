@@ -8,6 +8,33 @@ pub struct Conversation {
     pub last_date: DateTime<Local>,
 }
 
+impl Conversation {
+    pub fn matches_search(&self, query: &str) -> bool {
+        let query = query.trim().to_lowercase();
+        if query.is_empty() {
+            return true;
+        }
+
+        let values = || {
+            std::iter::once(self.name.as_str()).chain(self.participants.iter().map(String::as_str))
+        };
+        if values().any(|value| value.to_lowercase().contains(&query)) {
+            return true;
+        }
+
+        let query_digits: String = query.chars().filter(char::is_ascii_digit).collect();
+        !query_digits.is_empty()
+            && values()
+                .map(|value| {
+                    value
+                        .chars()
+                        .filter(char::is_ascii_digit)
+                        .collect::<String>()
+                })
+                .any(|digits| digits.contains(&query_digits))
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct ChatMessage {
     pub date: DateTime<Local>,
@@ -80,5 +107,42 @@ impl ExportRange {
                 .and_then(|value| now.checked_sub_signed(Duration::days(value))),
             Self::Everything => None,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use chrono::Local;
+
+    use super::Conversation;
+
+    fn conversation(name: &str, participants: &[&str]) -> Conversation {
+        Conversation {
+            id: 1,
+            name: name.to_string(),
+            participants: participants.iter().map(|value| value.to_string()).collect(),
+            last_date: Local::now(),
+        }
+    }
+
+    #[test]
+    fn search_matches_contact_names_case_insensitively() {
+        let conversation = conversation("Alice Smith", &["+18455551212"]);
+        assert!(conversation.matches_search("alice"));
+        assert!(conversation.matches_search("SMITH"));
+        assert!(!conversation.matches_search("Bob"));
+    }
+
+    #[test]
+    fn search_matches_phone_numbers_ignoring_formatting() {
+        let conversation = conversation("Alice Smith", &["+1 (845) 555-1212"]);
+        assert!(conversation.matches_search("845-555"));
+        assert!(conversation.matches_search("5551212"));
+        assert!(!conversation.matches_search("5559999"));
+    }
+
+    #[test]
+    fn empty_search_matches_every_conversation() {
+        assert!(conversation("Alice", &[]).matches_search(""));
     }
 }

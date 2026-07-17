@@ -2,6 +2,12 @@
 
 Notable user-facing changes are documented here.
 
+## Unreleased
+
+### Added
+
+- An unsigned egui macOS app prototype named **iMessage Browser** for conversation search, message browsing, paging, and Markdown export.
+
 ## 0.1.1 - 2026-07-16
 
 ### Added

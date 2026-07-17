@@ -12,6 +12,7 @@ A local, read-only terminal browser and Markdown exporter for the macOS Messages
   - [Requirements](#requirements)
   - [Install from source](#install-from-source)
   - [Build without installing](#build-without-installing)
+  - [GUI prototype](#gui-prototype)
   - [Keys](#keys)
     - [Conversations](#conversations)
     - [Messages](#messages)
@@ -57,6 +58,26 @@ imessage-tui
 cargo build --release
 ./target/release/imessage-tui
 ```
+
+## GUI prototype
+
+An unsigned Apple Silicon macOS app prototype is available alongside the TUI.
+Build and open it with:
+
+```sh
+./scripts/build-app.sh
+open "dist/iMessage Browser.app"
+```
+
+The GUI provides conversation search, message browsing and paging, and the same
+Markdown export ranges as the TUI. Exports default to the current user's
+Documents folder.
+
+The app needs Full Disk Access to read the local Messages database. If it shows
+the permission screen, open **System Settings → Privacy & Security → Full Disk
+Access**, add `dist/iMessage Browser.app`, enable it, then quit and reopen the app.
+Because this prototype is unsigned, it is intended for local testing rather
+than redistribution.
 
 ## Keys
 

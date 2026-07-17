@@ -16,6 +16,8 @@ Standalone Rust TUI for browsing and exporting macOS Messages data.
 - `CONTRIBUTING.md`: Development guidance, including version bumps and local reinstalls.
 - `LICENSE`: MIT license for the project.
 - `PROJECT-STATUS.md`: Current status and manual acceptance checklist.
+- `macos/Info.plist`: Metadata for the unsigned GUI app bundle.
+- `scripts/build-app.sh`: Builds and assembles `dist/iMessage Browser.app`.
 - `.github/workflows/ci.yml`: macOS formatting, test, and Clippy checks.
 - `assets/screenshot.png`: Anonymized TUI screenshot used in the README.
 - `assets/messages-screenshot.png`: Anonymized conversation screenshot used in the README.
@@ -26,3 +28,5 @@ Standalone Rust TUI for browsing and exporting macOS Messages data.
 - `src/model.rs`: Shared conversation, message, and export-range models.
 - `src/ui.rs`: Ratatui rendering.
 - `src/main.rs`: Terminal lifecycle and event loop.
+- `src/lib.rs`: Shared database, export, and model modules used by both interfaces.
+- `src/bin/imessage-gui.rs`: egui conversation browser and exporter prototype.

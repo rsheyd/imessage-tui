@@ -62,6 +62,11 @@ cargo build --release
 ## GUI prototype
 
 An unsigned Apple Silicon macOS app prototype is available alongside the TUI.
+
+<p align="center">
+  <img src="assets/gui-screenshot.png" alt="iMessage Browser GUI showing anonymized demo conversations and messages" width="900">
+</p>
+
 Build and open it with:
 
 ```sh

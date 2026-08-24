@@ -2,7 +2,7 @@
 
 ## Current phase
 
-Version 0.1.2 is ready for source-only publication. Automated validation passes, and live TUI acceptance against the user's Messages database was completed successfully on July 16, 2026. The GUI remains an unsigned Apple Silicon prototype with incomplete manual acceptance.
+Version 0.1.2 was published as a source-only GitHub release on August 24, 2026. Automated validation passes, and live TUI acceptance against the user's Messages database was completed successfully on July 16, 2026. The GUI remains an unsigned Apple Silicon prototype with incomplete manual acceptance.
 
 ## Automated validation
 

@@ -1,4 +1,5 @@
 /target/
 /dist/
+/exports/
 .DS_Store
 *.md~

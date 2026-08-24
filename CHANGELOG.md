@@ -2,11 +2,16 @@
 
 Notable user-facing changes are documented here.
 
-## Unreleased
+## 0.1.2 - 2026-08-24
 
 ### Added
 
 - An unsigned egui macOS app prototype named **iMessage Browser** for conversation search, message browsing, paging, and Markdown export.
+
+### Changed
+
+- Default TUI exports to an ignored `exports/` directory beneath the launch directory and create missing export directories automatically.
+- Default GUI exports to `~/Documents/iMessage Exports/` instead of directly into Documents.
 
 ## 0.1.1 - 2026-07-16
 

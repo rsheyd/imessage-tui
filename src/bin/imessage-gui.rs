@@ -4,7 +4,7 @@ use chrono::Local;
 use eframe::egui::{self, Color32, RichText};
 use imessage_tui::{
     db::Database,
-    export::{safe_filename, write_markdown},
+    export::{GUI_EXPORT_DIRECTORY, default_export_path as export_path_in, write_markdown},
     model::{ChatMessage, Conversation, ExportRange},
 };
 
@@ -420,16 +420,15 @@ impl eframe::App for GuiApp {
 }
 
 fn default_export_path(conversation: &Conversation, range: &ExportRange) -> String {
-    let filename = format!(
-        "{}-{}-{}.md",
-        safe_filename(&conversation.name),
-        range.label(),
-        Local::now().format("%Y-%m-%d")
-    );
-    env::var_os("HOME")
+    let directory = env::var_os("HOME")
         .map(PathBuf::from)
-        .map(|home| home.join("Documents").join(&filename))
-        .unwrap_or_else(|| PathBuf::from(filename))
+        .map(|home| home.join("Documents").join(GUI_EXPORT_DIRECTORY))
+        .unwrap_or_else(|| {
+            env::current_dir()
+                .unwrap_or_else(|_| PathBuf::from("."))
+                .join(GUI_EXPORT_DIRECTORY)
+        });
+    export_path_in(&directory, conversation, range)
         .display()
         .to_string()
 }

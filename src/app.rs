@@ -7,7 +7,7 @@ use ratatui::widgets::ListState;
 
 use imessage_tui::{
     db::Database,
-    export::{safe_filename, write_markdown},
+    export::{TUI_EXPORT_DIRECTORY, default_export_path, write_markdown},
     model::{ChatMessage, Conversation, ExportRange},
 };
 
@@ -364,16 +364,11 @@ impl App {
         let conversation = self
             .current_conversation()
             .context("No conversation selected")?;
-        let filename = format!(
-            "{}-{}-{}.md",
-            safe_filename(&conversation.name),
-            range.label(),
-            Local::now().format("%Y-%m-%d")
-        );
-        self.modal = Modal::PathInput {
-            range,
-            value: filename,
-        };
+        let directory = env::current_dir()?.join(TUI_EXPORT_DIRECTORY);
+        let value = default_export_path(&directory, conversation, &range)
+            .display()
+            .to_string();
+        self.modal = Modal::PathInput { range, value };
         Ok(())
     }
 

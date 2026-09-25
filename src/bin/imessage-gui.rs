@@ -218,11 +218,16 @@ impl GuiApp {
         match database
             .messages_since(conversation.id, range.start(Local::now()))
             .and_then(|messages| {
-                write_markdown(&path, conversation, &range, &messages)?;
-                Ok(messages.len())
+                let summary = write_markdown(&path, conversation, &range, &messages)?;
+                Ok((messages.len(), summary))
             }) {
-            Ok(count) => {
-                self.status = format!("Exported {count} messages to {}", path.display());
+            Ok((count, summary)) => {
+                self.status = format!(
+                    "Exported {count} messages; images: {} copied, {} unavailable; {}",
+                    summary.copied_images,
+                    summary.unavailable_images,
+                    path.display()
+                );
                 true
             }
             Err(error) => {

@@ -8,7 +8,7 @@ A private-by-default, read-only browser and Markdown exporter for Messages data 
 
 ## Project status
 
-The current version is `0.1.2`. GitHub releases are source-only; no prebuilt binary is currently distributed. Version 0.1.2 adds safer default export directories and the unsigned GUI prototype while keeping the TUI as the primary interface.
+The current development version is `0.1.3`. GitHub releases are source-only; no prebuilt binary is currently distributed. Version 0.1.3 adds image copying to Markdown exports in both interfaces.
 
 The GUI is a local Apple Silicon experiment, not a supported or signed application release. The TUI remains the primary interface.
 
@@ -86,7 +86,7 @@ The default TUI path is `./exports/<conversation>-<range>-<date>.md`, relative t
 
 The export prompt remains editable, so you can choose another relative or absolute destination. Exports written outside this repository are not covered by its `.gitignore` rule.
 
-Export files are ordinary, unencrypted Markdown containing names, participant identifiers, timestamps, message text, reactions, and attachment placeholders. Treat them as sensitive personal data: review paths before exporting, avoid cloud-synchronized or shared directories unless intended, and inspect files before attaching them to bug reports or AI tools.
+Export files are ordinary, unencrypted Markdown containing names, participant identifiers, timestamps, message text, reactions, and attachment references. Image attachments on selected messages are copied to a `<Markdown filename>-images/` directory beside the Markdown file and linked with relative paths. The export notice and Markdown header report how many image attachments were copied or unavailable. Unavailable images and other attachments retain placeholders. Treat the Markdown and image directory as sensitive personal data: review paths before exporting, avoid cloud-synchronized or shared directories unless intended, and inspect files before attaching them to bug reports or AI tools.
 
 <p align="center">
   <img src="assets/messages-screenshot.png" alt="imessage-tui showing messages in a conversation" width="49%">
@@ -117,7 +117,7 @@ The app is unsigned, has no published binary, and is intended only for local tes
 - Messages and Contacts databases are opened read-only.
 - The application does not transmit Messages or Contacts data over the network.
 - Exported Markdown is unencrypted and leaves macOS-protected database storage.
-- Attachments are not copied; exports contain placeholders rather than attachment contents.
+- Image attachments are copied when their source files are available; other attachments remain placeholders.
 - Contact resolution depends on locally available Contacts data and may fall back to an address or phone number.
 - The project does not modify, send, delete, or synchronize Messages.
 

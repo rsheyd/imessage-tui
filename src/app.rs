@@ -412,10 +412,12 @@ impl App {
         };
         let start = range.start(Local::now());
         let messages = self.db.messages_since(conversation.id, start)?;
-        write_markdown(&path, &conversation, &range, &messages)?;
+        let summary = write_markdown(&path, &conversation, &range, &messages)?;
         self.modal = Modal::Notice(format!(
-            "Exported {} messages to\n{}\n\nPress any key to continue.",
+            "Exported {} messages\nImages: {} copied, {} unavailable\n{}\n\nPress any key to continue.",
             messages.len(),
+            summary.copied_images,
+            summary.unavailable_images,
             path.display()
         ));
         Ok(())

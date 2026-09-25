@@ -9,6 +9,7 @@ use chrono::{DateTime, Local};
 use imessage_database::{
     message_types::variants::{TapbackAction, Variant},
     tables::{
+        attachment::{Attachment, MediaType},
         handle::Handle,
         messages::Message,
         table::{Cacheable, Table, get_connection},
@@ -16,11 +17,12 @@ use imessage_database::{
     util::{
         dates::{get_local_time, get_offset},
         dirs::default_db_path,
+        platform::Platform,
     },
 };
 use rusqlite::{Connection, OpenFlags, params};
 
-use crate::model::{ChatMessage, Conversation};
+use crate::model::{ChatMessage, Conversation, ImageAttachment};
 
 const MESSAGE_QUERY_HEAD: &str = r#"
 SELECT
@@ -189,15 +191,66 @@ impl Database {
             };
             let date = get_local_time(message.date, get_offset())
                 .with_context(|| format!("Invalid message timestamp: {}", message.date))?;
+            let images = Attachment::from_message(&self.connection, &message)
+                .map_err(anyhow::Error::msg)?
+                .into_iter()
+                .filter_map(|attachment| {
+                    let extension = image_extension(&attachment)?;
+                    let source = attachment.resolved_attachment_path(
+                        &Platform::macOS,
+                        Path::new(""),
+                        None,
+                    )?;
+                    Some(ImageAttachment {
+                        id: attachment.rowid,
+                        source: PathBuf::from(source),
+                        extension,
+                    })
+                })
+                .collect();
             out.push(ChatMessage {
                 date,
                 sender,
                 text: message.text,
                 reaction,
                 attachment_count: usize::try_from(message.num_attachments).unwrap_or(0),
+                images,
             });
         }
         Ok(out)
+    }
+}
+
+fn image_extension(attachment: &Attachment) -> Option<String> {
+    let path_extension = attachment.extension().map(str::to_ascii_lowercase);
+    let known_extension = path_extension.as_deref().filter(|extension| {
+        matches!(
+            *extension,
+            "png"
+                | "jpg"
+                | "jpeg"
+                | "gif"
+                | "heic"
+                | "heif"
+                | "webp"
+                | "tif"
+                | "tiff"
+                | "bmp"
+                | "avif"
+        )
+    });
+    match attachment.mime_type() {
+        MediaType::Image(subtype) => known_extension.map(str::to_string).or_else(|| {
+            let subtype = subtype.split(';').next()?.to_ascii_lowercase();
+            let extension = match subtype.as_str() {
+                "jpeg" => "jpg",
+                "tiff" => "tif",
+                "heic" | "heif" | "png" | "gif" | "webp" | "bmp" | "avif" => &subtype,
+                _ => return None,
+            };
+            Some(extension.to_string())
+        }),
+        _ => known_extension.map(str::to_string),
     }
 }
 

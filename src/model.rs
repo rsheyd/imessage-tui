@@ -1,4 +1,13 @@
+use std::path::PathBuf;
+
 use chrono::{DateTime, Duration, Local};
+
+#[derive(Clone, Debug)]
+pub struct ImageAttachment {
+    pub id: i32,
+    pub source: PathBuf,
+    pub extension: String,
+}
 
 #[derive(Clone, Debug)]
 pub struct Conversation {
@@ -42,10 +51,15 @@ pub struct ChatMessage {
     pub text: Option<String>,
     pub reaction: Option<String>,
     pub attachment_count: usize,
+    pub images: Vec<ImageAttachment>,
 }
 
 impl ChatMessage {
     pub fn display_body(&self) -> String {
+        self.display_body_with_images(&[])
+    }
+
+    pub fn display_body_with_images(&self, image_markdown: &[String]) -> String {
         let mut parts = Vec::new();
         if let Some(text) = self.text.as_deref().filter(|text| !text.trim().is_empty()) {
             parts.push(text.to_string());
@@ -53,10 +67,12 @@ impl ChatMessage {
         if let Some(reaction) = &self.reaction {
             parts.push(format!("Reaction: {reaction}"));
         }
-        if self.attachment_count == 1 {
+        parts.extend(image_markdown.iter().cloned());
+        let remaining = self.attachment_count.saturating_sub(image_markdown.len());
+        if remaining == 1 {
             parts.push("[Attachment]".to_string());
-        } else if self.attachment_count > 1 {
-            parts.push(format!("[{} attachments]", self.attachment_count));
+        } else if remaining > 1 {
+            parts.push(format!("[{remaining} attachments]"));
         }
         if parts.is_empty() {
             parts.push("[Message without exportable text]".to_string());

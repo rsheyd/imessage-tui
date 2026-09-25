@@ -2,6 +2,13 @@
 
 Notable user-facing changes are documented here.
 
+## 0.1.3 - Unreleased
+
+### Added
+
+- Markdown exports copy image attachments from messages in the selected range into a sibling image directory and link them from the conversation.
+- Export results and Markdown headers report copied and unavailable image attachment counts.
+
 ## 0.1.2 - 2026-08-24
 
 ### Added
